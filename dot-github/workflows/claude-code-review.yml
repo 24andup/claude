@@ -1,0 +1,109 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    name: AI Code Review
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/claude-review'))
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        id: check-size
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # Get the diff stats for the PR
+            LINES_CHANGED=$(git diff --stat origin/${{ github.base_ref }}..HEAD | tail -n 1 | grep -o '[0-9]\+ insertions\|[0-9]\+ deletions' | grep -o '[0-9]\+' | paste -sd+ - | bc 2>/dev/null || echo "0")
+            echo "lines_changed=$LINES_CHANGED" >> $GITHUB_OUTPUT
+            echo "Checking PR size: $LINES_CHANGED lines changed"
+
+            if [[ "$LINES_CHANGED" =~ ^[0-9]+$ ]] && [ "$LINES_CHANGED" -gt 2000 ]; then
+              echo "pr_too_large=true" >> $GITHUB_OUTPUT
+            else
+              echo "pr_too_large=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # For comment triggers, always allow review
+            echo "pr_too_large=false" >> $GITHUB_OUTPUT
+            echo "lines_changed=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on large PR
+        if: steps.check-size.outputs.pr_too_large == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **Claude Code Review Skipped**
+
+              This pull request contains **${{ steps.check-size.outputs.lines_changed }} lines** of changes, which exceeds the 2000 line threshold for automatic review.
+
+              **Why this limit exists:**
+              - Large PRs can be expensive to review with AI
+              - Smaller PRs generally receive better, more focused feedback
+              - Consider breaking large changes into smaller, focused PRs
+
+              **To get a review anyway:**
+              - Comment \`/claude-review\` on this PR to trigger a manual review
+              - Or use the manual workflow trigger in the Actions tab
+
+              **Best practices:**
+              - Break large features into smaller, logical commits
+              - Consider separate PRs for different concerns (refactoring, new features, bug fixes)
+              - Use draft PRs for work-in-progress that doesn't need immediate review`
+            })
+
+      - name: Claude Code Review
+        if: steps.check-size.outputs.pr_too_large == 'false'
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          direct_prompt: |
+            Please perform a comprehensive code review of this pull request.
+
+            **Review Instructions:**
+            1. Review all changed files for code quality, security, and best practices
+            2. Check adherence to the project's architecture patterns defined in CLAUDE.md
+            3. Look for TypeScript type safety issues and potential runtime errors
+            4. Verify multi-tenant security (organization scoping)
+            5. Check for proper error handling and API response patterns
+            6. Review database query patterns and security
+            7. Ensure proper authentication and authorization checks
+            8. Check for performance implications
+
+            **Focus Areas:**
+            - Security vulnerabilities and multi-tenant data isolation
+            - TypeScript strict mode compliance
+            - API route authentication and error handling
+            - Database query security and parameterization
+            - Code organization and architecture adherence
+            - Performance and scalability considerations
+
+            Please provide:
+            1. A summary of the overall code quality and any major concerns
+            2. Specific feedback on individual files or functions
+            3. Security recommendations if applicable
+            4. Performance optimization suggestions
+            5. Code style and best practice recommendations
+
+            Format your response as a standard GitHub PR comment with clear sections.
+          use_sticky_comment: true
