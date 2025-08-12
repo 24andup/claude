@@ -2,64 +2,42 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development Commands
-
-### Testing and Running Commands
-
-```bash
-# Execute TypeScript command files
-pnpm tsx dot-claude/commands/design-engineering.ts
-pnpm tsx dot-claude/utils/template-generator.ts
-
-# Template generation utility
-pnpm tsx dot-claude/utils/template-generator.ts component ComponentName ./output/path.tsx
-
-# Scope validation utility
-pnpm tsx dot-claude/utils/scope-validator.ts design-engineering file1.tsx file2.ts
-
-# Quality checking utility
-pnpm tsx dot-claude/utils/quality-checker.ts feature post
-```
-
 ## Architecture Overview
 
-This is a **Claude Code template repository** that provides structured development workflows with scoped permissions and automated quality gates. The repository is designed to be copied into other projects to enable AI-powered development assistance.
+This is a **Claude Code template repository** that provides structured development workflows and specialized audit capabilities. The repository is designed to be copied into other projects to enable AI-powered development assistance and code quality audits.
 
 ### Core Components
 
-**dot-claude/commands/** - TypeScript command implementations for different development modes:
+**dot-claude/commands/** - Markdown-based command definitions for different workflows:
 
-- `design-engineering.ts` - Frontend-focused development with restricted file access
-- `feature.ts` - Full-stack development with complete codebase access
-- `fix.ts` - Context-aware bug resolution with intelligent scope determination
-- `disco/` - Modular feature discovery system with Linear integration
-
-**dot-claude/config/** - Configuration-driven behavior control:
-
-- `scopes.json` - File access patterns and technology stack restrictions
-- `quality-gates.json` - Pre/post validation checks for each command
-- `file-patterns.json` - Naming conventions and code structure patterns
-
-**dot-claude/utils/** - Reusable utility functions:
-
-- `template-generator.ts` - Variable substitution system for code generation
-- `scope-validator.ts` - Glob pattern matching for file validation
-- `quality-checker.ts` - Command execution with output capture
+- `feature.md` - Product engineering workflow with Linear integration for ticket management
+- `fix-pr.md` - Pull request feedback workflow using GitHub CLI for comprehensive PR reviews
+- `accessibility-audit.md` - WCAG 2.1 AA compliance auditing with detailed remediation guidance
+- `pendo-audit.md` - Analytics implementation verification for proper tracking coverage
+- `security-audit.md` - Comprehensive security vulnerability assessment and reporting
 
 ### Template System Architecture
 
-The command system uses configuration-driven scoping where each development mode has defined file access patterns, technology restrictions, and quality requirements. Commands validate scope before execution and run quality gates afterward.
+The command system has transitioned from TypeScript implementations to markdown-based workflow definitions. Each command file contains:
 
-The disco command demonstrates modular architecture with separate modules for orchestration, input collection, feature analysis, Linear service integration, and progress management.
+- Role-specific instructions and expertise requirements
+- Step-by-step workflow guidance
+- Integration points with external tools (Linear, GitHub CLI)
+- Output format specifications for audit reports
 
 ### Key Patterns
 
-- **Scope Validation**: Commands use glob patterns to restrict file access based on development context
-- **Quality Gates**: Automated validation through configurable pre/post checks
-- **Template Generation**: Variable substitution system ({{ComponentName}}) for consistent code generation
-- **Error Recovery**: Progress management for complex multi-step workflows
-- **Configuration-Driven**: Behavior controlled through JSON configuration files rather than hardcoded logic
+- **Workflow-Driven Development**: Commands provide structured workflows for specific engineering tasks
+- **External Tool Integration**: Direct integration with Linear for project management and GitHub CLI for PR operations
+- **Audit Capabilities**: Specialized audit commands for accessibility, security, and analytics tracking
+- **Report Generation**: Structured output formats for audit findings and recommendations
+- **Role-Based Instructions**: Each command defines specific expertise and responsibilities
 
 ## Template Usage
 
-This repository serves as a template - copy `dot-claude/` contents to target projects' `.claude/` directories and customize the configuration files for project-specific needs.
+This repository serves as a template - copy selected command files from `dot-claude/commands/` to target projects' `.claude/commands/` directories based on your team's needs:
+
+- For product teams: Include `feature.md` and `fix-pr.md` for development workflows
+- For security-conscious projects: Include `security-audit.md` for vulnerability assessments
+- For accessibility compliance: Include `accessibility-audit.md` for WCAG auditing
+- For analytics-driven products: Include `pendo-audit.md` for tracking verification
