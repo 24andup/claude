@@ -1,71 +1,102 @@
 # Claude Code Templates
 
-A template repository containing Claude Code configurations for structured development workflows with scoped permissions and automated quality gates.
+A template repository containing Claude Code command definitions for structured development workflows, code auditing, and external tool integrations.
 
 ## Overview
 
-This repository provides reusable Claude Code configurations that can be copied into your projects to enable:
+This repository provides reusable Claude Code command templates that can be copied into your projects to enable:
 
-- **Scoped Development Modes** - Frontend, full-stack, and bug fix workflows with appropriate permissions
-- **Automated Quality Gates** - Integrated linting, type-checking, and build validation
-- **Feature Discovery** - AI-powered feature breakdown and Linear project planning
-- **Code Templates** - Boilerplate for common patterns and components
+- **Development Workflows** - Product engineering with Linear integration and PR feedback via GitHub CLI
+- **Accessibility Auditing** - WCAG 2.1 AA compliance checking with detailed remediation guidance
+- **Security Auditing** - Comprehensive vulnerability assessment and threat analysis
+- **Analytics Auditing** - Pendo tracking implementation verification
 - **AI Code Review** - Automated GitHub Actions workflow for pull request reviews
 
 ## Quick Start
 
-1. **Copy template files** to your project:
+1. **Copy selected command files** to your project:
 
    ```bash
-   cp -r dot-claude/ /path/to/your/project/.claude/
+   # Copy desired command templates
+   cp dot-claude/commands/feature.md /path/to/your/project/.claude/commands/
+   cp dot-claude/commands/fix-pr.md /path/to/your/project/.claude/commands/
+   
+   # Copy audit commands as needed
+   cp dot-claude/commands/security-audit.md /path/to/your/project/.claude/commands/
+   cp dot-claude/commands/accessibility-audit.md /path/to/your/project/.claude/commands/
+   cp dot-claude/commands/pendo-audit.md /path/to/your/project/.claude/commands/
+   
+   # Copy GitHub Actions workflow (optional)
    cp -r dot-github/ /path/to/your/project/.github/
    ```
 
-2. **Customize configuration** files for your project's needs:
-   - Update `config/quality-gates.json` with your project's scripts
-   - Modify `config/file-patterns.json` for your codebase structure
-   - Adjust `config/scopes.json` permissions as needed
+2. **Customize commands** for your project:
+   - Update repository-specific references in command files
+   - Adjust Linear project references in `feature.md`
+   - Configure analytics patterns in `pendo-audit.md`
 
 3. **Setup AI Code Review** (optional):
    - Add `ANTHROPIC_API_KEY` secret to your GitHub repository
    - The workflow automatically reviews PRs under 2000 lines
    - Comment `/claude-review` to manually trigger reviews
 
-4. **Use development commands** in your project:
-   - `/disco` - Feature planning (requires Linear MCP server)
-   - `/design-engineering` - Frontend development
-   - `/feature` - Full-stack features
-   - `/fix` - Bug fixes
+4. **Use commands** in Claude Code:
+   - `/feature [ticket-id]` - Product engineering with Linear integration
+   - `/fix-pr [pr-number]` - Review and address PR feedback
+   - `/security-audit` - Run comprehensive security analysis
+   - `/accessibility-audit` - Check WCAG compliance
+   - `/pendo-audit` - Verify analytics tracking
 
-## Development Modes
+## Available Commands
 
-### 🔍 Discovery
+### 🚀 Product Engineering (`feature.md`)
 
-Feature discovery and Linear project planning for complex features
+Linear-integrated development workflow for implementing features:
 
-The `/disco` command provides AI-powered feature breakdown and project management integration:
+- **Ticket Management**: Pulls Linear tickets, assigns to user, updates status
+- **Planning & Documentation**: Attaches implementation plans and summaries to Linear
+- **Devil's Advocate Approach**: Considers edge cases and alternative approaches
+- **Project Context**: Reviews parent projects for full context
 
-- **Interactive Planning**: Guided prompts for business context, scope definition, and user flows
-- **Smart Analysis**: Context-aware ticket generation with automatic complexity assessment
-- **Dependency Mapping**: Visual relationship mapping between tickets and components
-- **Linear Integration**: Automatic project and ticket creation with team auto-detection
-- **File Input Support**: Use `disco-input.json` template for batch processing
+**Requirements**: Linear MCP server configuration for ticket management.
 
-**Requirements**: Requires the Linear MCP server to be configured for project management integration.
+### 🔧 Pull Request Feedback (`fix-pr.md`)
 
-**Best For**: Large feature planning, stakeholder alignment, technical architecture planning, and dependency analysis.
+Structured PR review and feedback resolution workflow:
 
-### 🎨 Design Engineering
+- **GitHub CLI Integration**: Direct interaction with pull requests
+- **Linear Context**: Automatically reviews associated tickets (531-XXX format)
+- **Feedback Triage**: Categorizes feedback into immediate fixes vs. future tickets
+- **Performance & DX Focus**: Evaluates edge cases and developer experience
 
-Frontend-focused development with access to components, pages, and styling files. Excludes API routes and database operations.
+### 🔐 Security Audit (`security-audit.md`)
 
-### 🚀 Feature Development
+Comprehensive security vulnerability assessment:
 
-Complete full-stack feature implementation with database migrations, API routes, services, and frontend components.
+- **Secret Scanning**: Identifies exposed credentials and API keys
+- **Dependency Analysis**: Checks for vulnerable or suspicious packages
+- **Injection Prevention**: Scans for SQL, XSS, and command injection risks
+- **AI Security**: Detects prompt injection vulnerabilities
+- **Report Generation**: Creates prioritized findings in `.claude/tmp/`
 
-### 🔧 Bug Fixes
+### ♿ Accessibility Audit (`accessibility-audit.md`)
 
-Context-aware bug resolution with intelligent scope determination based on the issue description.
+WCAG 2.1 AA compliance verification:
+
+- **Semantic HTML Review**: Validates proper structure and landmarks
+- **Keyboard Navigation**: Checks focus management and tab order
+- **Screen Reader Support**: Verifies ARIA implementation
+- **Visual Accessibility**: Evaluates color contrast and text sizing
+- **Detailed Remediation**: Provides specific code fixes with testing methods
+
+### 📊 Analytics Audit (`pendo-audit.md`)
+
+Pendo tracking implementation verification:
+
+- **Coverage Analysis**: Identifies missing tracking on interactions
+- **Naming Conventions**: Validates `feature:component:action` patterns
+- **Privacy Review**: Ensures no sensitive data in tracking
+- **Git Diff Focus**: Audits recent changes for proper implementation
 
 ## GitHub Actions Workflow
 
@@ -94,14 +125,44 @@ Automated code review workflow that provides comprehensive feedback on pull requ
 - Database query security and performance
 - Code organization and best practices
 
-## Configuration Files
+## Repository Structure
 
-- **file-patterns.json** - Defines file scope access for different development modes
-- **quality-gates.json** - Specifies quality gate commands (lint, type-check, format, build)
-- **scopes.json** - Permission scopes for different development contexts
-- **templates/** - Code templates for API routes, components, and pages
-- **workflows/** - GitHub Actions workflow for automated AI code reviews
+```
+dot-claude/
+├── commands/
+│   ├── feature.md              # Product engineering workflow
+│   ├── fix-pr.md               # PR feedback resolution
+│   ├── security-audit.md       # Security vulnerability scanning
+│   ├── accessibility-audit.md  # WCAG compliance checking
+│   └── pendo-audit.md          # Analytics tracking verification
+└── (additional configs as needed)
+
+dot-github/
+└── workflows/
+    └── (AI code review workflow)
+```
+
+## Customization Guide
+
+### Adapting Commands
+
+Each command file can be customized for your project:
+
+1. **Update Repository References**: Replace example repository names with your actual project
+2. **Configure Tool Integrations**: Update Linear project IDs, GitHub repo paths, etc.
+3. **Adjust Audit Criteria**: Modify security rules, accessibility standards, or analytics patterns
+4. **Add Project-Specific Instructions**: Include your team's conventions and requirements
+
+### Creating New Commands
+
+To create custom commands:
+
+1. Create a new `.md` file in `.claude/commands/`
+2. Define the role and expertise at the top
+3. Provide clear step-by-step instructions
+4. Specify output formats and destinations
+5. Include any required tool integrations
 
 ## Contributing
 
-This is a template repository. Improvements to the base configurations and commands are welcome via pull requests.
+This is a template repository. Improvements to command templates and new workflow patterns are welcome via pull requests.
